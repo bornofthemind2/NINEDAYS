@@ -3,6 +3,8 @@ import React from 'react';
 export enum GameState {
     Welcome,
     LevelStart,
+    DayTransition,
+    DayStart,
     DayInProgress,
     WaterBreak,
     LevelComplete,

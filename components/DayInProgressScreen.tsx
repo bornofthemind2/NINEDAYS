@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { INGREDIENT_INFO, BLEND_BENEFITS, PROGRAM_DATA } from '../constants';
+import { INGREDIENT_INFO, BLEND_BENEFITS, PROGRAM_DATA, INGREDIENT_IMAGES } from '../constants';
 
 const JuiceGlass: React.FC<{ filled: boolean }> = ({ filled }) => (
     <div className={`w-12 h-16 border-2 ${filled ? 'border-green-500' : 'border-gray-300'} rounded-t-lg rounded-b-md relative transition-all duration-300`}>
@@ -28,7 +28,7 @@ interface DayInProgressScreenProps {
     juiceName: string;
     juiceIngredients: string[];
     juicesConsumed: number;
-    onResponse: (isTimely: boolean) => void;
+    onResponse: (isTimely: boolean, elapsed: number) => void;
     onQuit: () => void;
 }
 
@@ -38,6 +38,7 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
     const [randomBenefit, setRandomBenefit] = useState<string>('');
     const [allIngredients, setAllIngredients] = useState<string[]>([]);
     const [waterBottlesFilled, setWaterBottlesFilled] = useState(0);
+    const [startTime, setStartTime] = useState<number | null>(null);
     const timerRef = useRef<number | null>(null);
     const waterTimerRef = useRef<number | null>(null);
 
@@ -72,6 +73,7 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
         // A short delay before the button and timer appear
         const showButtonTimer = setTimeout(() => {
             setShowButton(true);
+            setStartTime(Date.now());
 
             // Start water bottle filling animation (20 seconds total, 4 bottles, so every 5 seconds)
             let bottlesFilled = 0;
@@ -112,14 +114,15 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
-        onResponse(isTimely);
+        const elapsed = startTime ? Date.now() - startTime : 0;
+        onResponse(isTimely, elapsed);
     };
     
     return (
         <div className="text-center flex flex-col items-center justify-between h-full animate-fade-in">
             <div>
                 <h2 className="text-2xl font-bold text-green-800 mb-1">Day {day}: {juiceName}</h2>
-                <p className="text-gray-600 mb-4">Time for Juice #{juicesConsumed + 1} of 4.</p>
+                <p className="text-gray-600 mb-4">Time for Juice #{juicesConsumed + 1} of 3.</p>
                 
                 <div className="mb-4">
                     <p className="text-sm text-gray-500 mb-2">Today's blend contains:</p>
@@ -127,11 +130,24 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
                         {allIngredients.map(name => {
                             const info = INGREDIENT_INFO[name];
                             if (!info) return null;
-                            const Icon = info.icon;
+                            const imageUrl = INGREDIENT_IMAGES[name];
                             return (
                                 <div key={name} className="flex flex-col items-center text-center min-w-0 flex-1">
                                     <div className="bg-green-100/70 rounded-full p-2 mb-1">
-                                        <Icon className="w-5 h-5 text-green-600" />
+                                        {imageUrl ? (
+                                            <img
+                                                src={imageUrl}
+                                                alt={name}
+                                                className="w-5 h-5 rounded-full object-cover"
+                                                onError={(e) => {
+                                                    // Fallback to icon if image fails
+                                                    e.currentTarget.style.display = 'none';
+                                                    const iconElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                    if (iconElement) iconElement.style.display = 'block';
+                                                }}
+                                            />
+                                        ) : null}
+                                        {React.createElement(info.icon, { className: `w-5 h-5 text-green-600 ${imageUrl ? 'hidden' : 'block'}` })}
                                     </div>
                                     <span className="text-xs text-gray-600 leading-tight break-words">{name}</span>
                                 </div>

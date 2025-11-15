@@ -49,6 +49,7 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
         }
     }, [autoCheck, levelData.ingredients]);
 
+
     const handleToggle = (ingredientName: string) => {
         setSelectedItems(prev => ({ ...prev, [ingredientName]: !prev[ingredientName] }));
     };
