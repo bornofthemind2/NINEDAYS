@@ -228,7 +228,6 @@ const App: React.FC = () => {
     };
     
     const handleNextLevel = () => {
-        setCurrentDay(prevDay => prevDay + 1);
         setGameState(GameState.LevelStart);
         setRewardMessage('');
         setMissedResponses(0);
