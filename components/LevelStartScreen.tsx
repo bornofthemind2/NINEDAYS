@@ -36,24 +36,47 @@ interface LevelStartScreenProps {
 
 export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, onStart, onPurchase, autoCheck = false }) => {
     const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+    const [isInDMV, setIsInDMV] = useState<boolean | null>(null);
 
     useEffect(() => {
-        if (autoCheck) {
+        // Check if user is in DMV area (DC, MD, VA)
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    // DMV area approximate bounds
+                    const inDMV = latitude >= 37 && latitude <= 40 && longitude >= -80 && longitude <= -75;
+                    setIsInDMV(inDMV);
+                },
+                (error) => {
+                    console.log('Geolocation error:', error);
+                    setIsInDMV(false); // Default to not in DMV if location fails
+                }
+            );
+        } else {
+            setIsInDMV(false);
+        }
+    }, []);
+
+    const canUsePreMade = isInDMV === true;
+    const forceSelection = isInDMV === false;
+
+    useEffect(() => {
+        if (canUsePreMade && autoCheck) {
             const allSelected = levelData.ingredients.reduce((acc, item) => {
                 acc[item.name] = true;
                 return acc;
             }, {} as Record<string, boolean>);
             setSelectedItems(allSelected);
-        } else {
+        } else if (forceSelection) {
             setSelectedItems({});
         }
-    }, [autoCheck, levelData.ingredients]);
-
+    }, [canUsePreMade, forceSelection, autoCheck, levelData.ingredients]);
 
     const handleToggle = (ingredientName: string) => {
         setSelectedItems(prev => ({ ...prev, [ingredientName]: !prev[ingredientName] }));
     };
-    
+
     const allItemsSelected = levelData.ingredients.length > 0 && levelData.ingredients.every(item => !!selectedItems[item.name]);
 
     return (
@@ -95,13 +118,24 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
             </div>
             
             <div className="w-full mt-auto">
-                 <button
-                    onClick={onPurchase}
-                    disabled={autoCheck}
-                    className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
-                >
-                    {autoCheck ? 'Produce Purchased' : 'Purchase Produce'}
-                </button>
+                {canUsePreMade && (
+                    <button
+                        onClick={onPurchase}
+                        disabled={autoCheck}
+                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
+                    >
+                        {autoCheck ? 'Pre-made Juice Ordered' : 'Order Pre-made Juice Delivery'}
+                    </button>
+                )}
+                {!canUsePreMade && isInDMV === false && (
+                    <button
+                        onClick={onPurchase}
+                        disabled={!allItemsSelected}
+                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
+                    >
+                        {allItemsSelected ? 'Purchase Produce' : 'Select all items to purchase'}
+                    </button>
+                )}
                 <button
                     onClick={onStart}
                     disabled={!allItemsSelected}
@@ -109,6 +143,23 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
                 >
                     {allItemsSelected ? `Begin Day ${levelData.level * 3 - 2}` : 'Select all items to start'}
                 </button>
+                <div className="mt-4 text-xs text-gray-600 text-center px-4">
+                    <p className="mb-2">
+                        Purchase all the organic produce listed above from your local grocery store and use a standard juice press to extract the juices. Transfer the juice into twelve airtight 12-ounce jars, sufficient for three days of consumption — four jars per day.
+
+Alternatively, since you're located in the DMV area, you may opt for a local pre-made juice delivery service for added convenience.
+                    </p>
+                    {canUsePreMade && (
+                        <p className="text-green-600 font-medium">
+                            Alternatively, you can order pre-made juice delivery to your doorstep since you're in the DMV area.
+                        </p>
+                    )}
+                    {!canUsePreMade && isInDMV === false && (
+                        <p className="text-orange-600">
+                            Pre-made delivery is not available in your area. Please purchase the produce locally and select the items above.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
