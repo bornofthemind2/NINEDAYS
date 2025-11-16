@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const WaterBottle: React.FC<{ filled: boolean, onClick: () => void }> = ({ filled, onClick }) => (
-    <img src="/images/water.png" alt="Water Bottle" className="w-20 h-32 mx-auto cursor-pointer" onClick={onClick} />
+    <img src="/images/water.png" alt="Water Bottle" className="w-20 h-32 mx-auto cursor-pointer object-contain" onClick={onClick} />
 );
 
 interface WaterBreakScreenProps {
