@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
 
 const WaterBottle: React.FC<{ filled: boolean, onClick: () => void }> = ({ filled, onClick }) => (
-    <img src="/images/water.png" alt="Water Bottle" className="w-20 h-32 mx-auto cursor-pointer object-contain" onClick={onClick} />
+    <div className="relative w-20 h-32 mx-auto cursor-pointer" onClick={onClick}>
+        <img src="/images/water.png" alt="Water Bottle" className="w-20 h-32 object-contain" />
+        {filled && (
+            <>
+                {/* Spilling water droplets */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-2 bg-green-400 rounded-full animate-bounce opacity-70"></div>
+                <div className="absolute top-1 left-1/3 w-0.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0.2s' }}></div>
+                <div className="absolute top-1 right-1/3 w-0.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0.4s' }}></div>
+
+                {/* Water surface bubbles */}
+                <div className="absolute top-2 left-2 w-1 h-1 bg-green-300 rounded-full animate-ping opacity-50"></div>
+                <div className="absolute top-3 right-2 w-0.5 h-0.5 bg-green-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.3s' }}></div>
+                <div className="absolute top-4 left-3 w-0.5 h-0.5 bg-green-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.6s' }}></div>
+            </>
+        )}
+    </div>
 );
 
 interface WaterBreakScreenProps {
