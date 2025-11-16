@@ -25,8 +25,6 @@ export const IngredientNutritionCard: React.FC<IngredientNutritionCardProps> = (
 
   if (!info) return null;
 
-  const Icon = info.icon;
-
   return (
     <div
       className={`bg-white rounded-lg shadow-md p-4 border-2 transition-all duration-200 ${
@@ -38,20 +36,16 @@ export const IngredientNutritionCard: React.FC<IngredientNutritionCardProps> = (
       {/* Header - always visible */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center flex-grow cursor-pointer" onClick={disabled ? undefined : onToggle}>
-          {imageUrl ? (
+          {imageUrl && (
             <img
               src={imageUrl}
               alt={ingredient.name}
               className="w-12 h-12 rounded-full object-cover mr-3 flex-shrink-0"
               onError={(e) => {
-                // Fallback to icon if image fails to load
-                e.currentTarget.style.display = 'none';
-                const iconElement = e.currentTarget.nextElementSibling as HTMLElement;
-                if (iconElement) iconElement.style.display = 'block';
+                console.warn(`Failed to load image for ${ingredient.name}`);
               }}
             />
-          ) : null}
-          <Icon className={`w-12 h-12 mr-3 flex-shrink-0 ${isSelected ? 'text-green-600' : 'text-green-500'}`} style={{ display: imageUrl ? 'none' : 'block' }} />
+          )}
           <div className="flex-grow">
             <h3 className={`font-bold text-lg ${isSelected ? 'text-green-800' : 'text-gray-800'}`}>{ingredient.name}</h3>
             <p className={`text-sm ${isSelected ? 'text-green-600' : 'text-gray-600'}`}>{ingredient.quantity}</p>

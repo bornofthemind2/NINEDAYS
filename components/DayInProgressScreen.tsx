@@ -134,20 +134,16 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
                             return (
                                 <div key={name} className="flex flex-col items-center text-center min-w-0 flex-1">
                                     <div className="bg-green-100/70 rounded-full p-2 mb-1">
-                                        {imageUrl ? (
+                                        {imageUrl && (
                                             <img
                                                 src={imageUrl}
                                                 alt={name}
                                                 className="w-5 h-5 rounded-full object-cover"
-                                                onError={(e) => {
-                                                    // Fallback to icon if image fails
-                                                    e.currentTarget.style.display = 'none';
-                                                    const iconElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                    if (iconElement) iconElement.style.display = 'block';
+                                                onError={() => {
+                                                    console.warn(`Failed to load image for ${name}`);
                                                 }}
                                             />
-                                        ) : null}
-                                        {React.createElement(info.icon, { className: `w-5 h-5 text-green-600 ${imageUrl ? 'hidden' : 'block'}` })}
+                                        )}
                                     </div>
                                     <span className="text-xs text-gray-600 leading-tight break-words">{name}</span>
                                 </div>

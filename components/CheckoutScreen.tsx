@@ -23,22 +23,16 @@ const CheckoutItem: React.FC<{ ingredient: Ingredient, unitPrice: number }> = ({
     return (
         <div className="flex items-center justify-between py-2 border-b border-gray-200">
             <div className="flex items-center">
-                {imageUrl ? (
+                {imageUrl && (
                     <img
                         src={imageUrl}
                         alt={ingredient.name}
                         className="w-8 h-8 rounded-full object-cover mr-3 flex-shrink-0"
-                        onError={(e) => {
-                            // Fallback to icon if image fails
-                            e.currentTarget.style.display = 'none';
-                            const iconElement = e.currentTarget.nextElementSibling as HTMLElement;
-                            if (iconElement) iconElement.style.display = 'block';
+                        onError={() => {
+                            console.warn(`Failed to load image for ${ingredient.name}`);
                         }}
                     />
-                ) : null}
-                <div className={`w-8 h-8 mr-3 flex-shrink-0 ${imageUrl ? 'hidden' : 'block'}`}>
-                    {React.createElement(info.icon, { className: "w-8 h-8 text-green-500" })}
-                </div>
+                )}
                 <div>
                     <p className="font-semibold text-gray-800">{ingredient.name}</p>
                     <p className="text-sm text-gray-500">{quantityNum} x ${unitPrice.toFixed(2)} = ${price}</p>
