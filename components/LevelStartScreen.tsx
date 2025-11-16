@@ -3,30 +3,6 @@ import { LevelData, Ingredient } from '../types';
 import { INGREDIENT_INFO, INGREDIENT_IMAGES } from '../constants';
 import { IngredientNutritionCard } from './IngredientNutritionCard';
 
-const IngredientButton: React.FC<{ ingredient: Ingredient, isSelected: boolean, onToggle: () => void, disabled: boolean }> = ({ ingredient, isSelected, onToggle, disabled }) => {
-    const info = INGREDIENT_INFO[ingredient.name];
-    if (!info) return null;
-    const Icon = info.icon;
-
-    return (
-        <button
-            onClick={onToggle}
-            disabled={disabled}
-            className={`w-full flex items-center text-left p-3 rounded-lg border-2 transition-all duration-200 ${isSelected ? 'bg-green-100 border-green-500 shadow-md' : 'bg-white border-gray-200 hover:border-green-300'} disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
-        >
-            <Icon className={`w-10 h-10 mr-4 flex-shrink-0 ${isSelected ? 'text-green-600' : 'text-gray-400'}`} />
-            <div className="flex-grow">
-                <p className={`font-bold text-lg ${isSelected ? 'text-green-800' : 'text-gray-700'}`}>{ingredient.name}</p>
-                <p className={`text-sm ${isSelected ? 'text-green-600' : 'text-gray-500'}`}>{ingredient.quantity}</p>
-            </div>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-green-500' : 'bg-gray-200'}`}>
-                {isSelected && <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
-            </div>
-        </button>
-    );
-};
-
-
 interface LevelStartScreenProps {
     levelData: LevelData;
     onStart: () => void;
@@ -36,6 +12,7 @@ interface LevelStartScreenProps {
 
 export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, onStart, onPurchase, autoCheck = false }) => {
     const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+    const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isInDMV, setIsInDMV] = useState<boolean | null>(null);
 
     useEffect(() => {
@@ -74,7 +51,19 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
     }, [canUsePreMade, forceSelection, autoCheck, levelData.ingredients]);
 
     const handleToggle = (ingredientName: string) => {
-        setSelectedItems(prev => ({ ...prev, [ingredientName]: !prev[ingredientName] }));
+        setSelectedItems(prev => {
+            const newSelected = !prev[ingredientName];
+            // Auto-expand when selecting, collapse when deselecting
+            setExpandedItems(prevExpanded => ({
+                ...prevExpanded,
+                [ingredientName]: newSelected
+            }));
+            return { ...prev, [ingredientName]: newSelected };
+        });
+    };
+
+    const handleExpandToggle = (ingredientName: string) => {
+        setExpandedItems(prev => ({ ...prev, [ingredientName]: !prev[ingredientName] }));
     };
 
     const allItemsSelected = levelData.ingredients.length > 0 && levelData.ingredients.every(item => !!selectedItems[item.name]);
@@ -91,38 +80,40 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
             </div>
 
             <div className="w-full overflow-y-auto max-h-96 space-y-4 p-1 my-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Ingredients to Purchase:</h3>
+                    <p className="text-sm text-gray-600 mb-4">Click on each ingredient card below to select it for purchase. Each card shows nutritional information and health benefits.</p>
+                </div>
+
+                <div className="space-y-3">
                     {levelData.ingredients.map(ingredient => (
                         <IngredientNutritionCard
                             key={ingredient.name}
                             ingredient={ingredient}
                             imageUrl={INGREDIENT_IMAGES[ingredient.name]}
+                            isSelected={!!selectedItems[ingredient.name]}
+                            onToggle={() => handleToggle(ingredient.name)}
+                            disabled={autoCheck}
+                            expanded={!!expandedItems[ingredient.name]}
+                            onExpandToggle={() => handleExpandToggle(ingredient.name)}
                         />
                     ))}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Ingredients to Purchase:</h3>
-                    <div className="space-y-2">
-                        {levelData.ingredients.map(ingredient => (
-                            <IngredientButton
-                                key={ingredient.name}
-                                ingredient={ingredient}
-                                isSelected={!!selectedItems[ingredient.name]}
-                                onToggle={() => handleToggle(ingredient.name)}
-                                disabled={autoCheck}
-                            />
-                        ))}
-                    </div>
                 </div>
             </div>
             
             <div className="w-full mt-auto">
+                <button
+                    onClick={onStart}
+                    disabled={!allItemsSelected}
+                    className="w-full bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-700 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
+                >
+                    {allItemsSelected ? `Begin Day ${levelData.level * 3 - 2}` : 'Select all items to start'}
+                </button>
                 {canUsePreMade && (
                     <button
                         onClick={onPurchase}
                         disabled={autoCheck}
-                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
+                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
                     >
                         {autoCheck ? 'Pre-made Juice Ordered' : 'Order Pre-made Juice Delivery'}
                     </button>
@@ -131,18 +122,11 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
                     <button
                         onClick={onPurchase}
                         disabled={!allItemsSelected}
-                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg mb-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
+                        className="w-full bg-blue-500 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
                     >
                         {allItemsSelected ? 'Purchase Produce' : 'Select all items to purchase'}
                     </button>
                 )}
-                <button
-                    onClick={onStart}
-                    disabled={!allItemsSelected}
-                    className="w-full bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-700 transition-all transform hover:scale-105 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:scale-100"
-                >
-                    {allItemsSelected ? `Begin Day ${levelData.level * 3 - 2}` : 'Select all items to start'}
-                </button>
                 <div className="mt-4 text-xs text-gray-600 text-center px-4">
                     <p className="mb-2">
                         Purchase all the organic produce listed above from your local grocery store and use a standard juice press to extract the juices. Transfer the juice into twelve airtight 12-ounce jars, sufficient for three days of consumption — four jars per day.
