@@ -1,46 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const WaterBottle: React.FC<{ filled: boolean, onClick: () => void }> = ({ filled, onClick }) => (
-    <div className="relative w-20 h-32 mx-auto cursor-pointer" onClick={onClick}>
-        {/* Bottle outline */}
-        <div className={`absolute inset-0 border-2 rounded-lg bg-white shadow-lg overflow-hidden transition-all ${filled ? 'border-green-500' : 'border-gray-300'}`}>
-            {/* Bottle neck */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-4 bg-gray-300 rounded-t"></div>
-            {/* Bottle cap */}
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-gray-400 rounded-full"></div>
-        </div>
-
-        {/* Water fill with spilling effect */}
-        <div className="absolute bottom-0 left-0 right-0 transition-all duration-1000 ease-in-out">
-            {/* Main water body */}
-            <div
-                className="bg-blue-400 rounded-b-lg shadow-inner"
-                style={{
-                    height: filled ? '100%' : '0%',
-                    background: filled ? 'linear-gradient(to top, #10b981, #34d399)' : 'transparent',
-                    transition: 'height 1s ease-in-out'
-                }}
-            ></div>
-
-            {/* Water spilling effect */}
-            {filled && (
-                <>
-                    {/* Spilling water droplets */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-2 bg-green-400 rounded-full animate-bounce opacity-70"></div>
-                    <div className="absolute top-1 left-1/3 w-0.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="absolute top-1 right-1/3 w-0.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0.4s' }}></div>
-
-                    {/* Water surface bubbles */}
-                    <div className="absolute top-2 left-2 w-1 h-1 bg-green-300 rounded-full animate-ping opacity-50"></div>
-                    <div className="absolute top-3 right-2 w-0.5 h-0.5 bg-green-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.3s' }}></div>
-                    <div className="absolute top-4 left-3 w-0.5 h-0.5 bg-green-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.6s' }}></div>
-                </>
-            )}
-        </div>
-
-        {/* Bottle label/shadow effect */}
-        <div className="absolute inset-1 border border-gray-200 rounded-lg pointer-events-none"></div>
-    </div>
+    <img src="/images/new_water.png" alt="Water Bottle" className="w-20 h-32 mx-auto cursor-pointer" onClick={onClick} />
 );
 
 interface WaterBreakScreenProps {
