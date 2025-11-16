@@ -97,6 +97,8 @@ export const WaterBreakScreen: React.FC<WaterBreakScreenProps> = ({ onComplete, 
                      }
                  </p>
 
+                 <img src="/images/new_water.png" alt="Water" className="w-32 h-32 mx-auto mb-4" />
+
                  {!isNightRest && !isTimely && (
                      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded-r-lg">
                          <p className="font-semibold">Strike! ⚠️</p>
