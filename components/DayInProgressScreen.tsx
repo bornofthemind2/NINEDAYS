@@ -139,6 +139,8 @@ export const DayInProgressScreen: React.FC<DayInProgressScreenProps> = ({ day, j
                                                 src={imageUrl}
                                                 alt={name}
                                                 className="w-5 h-5 rounded-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
                                                 onError={() => {
                                                     console.warn(`Failed to load image for ${name}`);
                                                 }}

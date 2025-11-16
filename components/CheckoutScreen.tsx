@@ -28,6 +28,8 @@ const CheckoutItem: React.FC<{ ingredient: Ingredient, unitPrice: number }> = ({
                         src={imageUrl}
                         alt={ingredient.name}
                         className="w-8 h-8 rounded-full object-cover mr-3 flex-shrink-0"
+                        loading="lazy"
+                        decoding="async"
                         onError={() => {
                             console.warn(`Failed to load image for ${ingredient.name}`);
                         }}

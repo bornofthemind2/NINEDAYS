@@ -41,6 +41,8 @@ export const IngredientNutritionCard: React.FC<IngredientNutritionCardProps> = (
               src={imageUrl}
               alt={ingredient.name}
               className="w-12 h-12 rounded-full object-cover mr-3 flex-shrink-0"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 console.warn(`Failed to load image for ${ingredient.name}`);
               }}
