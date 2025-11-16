@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { LevelData, Ingredient } from '../types';
 import { INGREDIENT_INFO, INGREDIENT_IMAGES } from '../constants';
 import { getProducePrice } from '../services/geminiService';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Test publishable key from Stripe dashboard
+const stripePromise = loadStripe('pk_test_51QjAMKAVuBsgrnVAT3mo3R1VFlMRfFQ73HsZUMEp3q6d2HXL01Uzj8XNyKDBikyP9Df5JShLEO57B6qDxrHZZ5CG00UvfGGFxF');
 
 const parseQuantity = (quantity: string): number => {
     const match = quantity.match(/(\d+)/);
@@ -44,6 +49,87 @@ const CheckoutItem: React.FC<{ ingredient: Ingredient, unitPrice: number }> = ({
     );
 };
 
+const CARD_ELEMENT_OPTIONS = {
+    style: {
+        base: {
+            fontSize: '16px',
+            color: '#424770',
+            '::placeholder': {
+                color: '#aab7c4',
+            },
+        },
+        invalid: {
+            color: '#9e2146',
+        },
+    },
+};
+
+const CheckoutForm: React.FC<{ levelData: LevelData, onBack: () => void, onCheckoutComplete: () => void, loadingPrices: boolean, total: string }> = ({ levelData, onBack, onCheckoutComplete, loadingPrices, total }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        setIsProcessing(true);
+        setError(null);
+
+        const cardElement = elements.getElement(CardElement);
+
+        if (!cardElement) {
+            setError('Card element not found');
+            setIsProcessing(false);
+            return;
+        }
+
+        // For test mode, we'll simulate a successful payment
+        // In production, you would create a payment intent on your server
+        try {
+            // Simulate payment processing delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // For test mode, always succeed
+            onCheckoutComplete();
+        } catch (err) {
+            setError('Payment failed. Please try again.');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-3">Payment Details</h3>
+                <div className="bg-gray-100 p-3 rounded-lg border border-gray-300">
+                    <CardElement options={CARD_ELEMENT_OPTIONS} />
+                </div>
+                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                <p className="text-xs text-gray-500 mt-2">
+                    Use test card: 4242 4242 4242 4242, any future expiry, any CVC
+                </p>
+            </div>
+
+            <footer className="p-6 bg-gray-50 border-t">
+                <button
+                    type="submit"
+                    disabled={!stripe || isProcessing || loadingPrices}
+                    className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-400 flex items-center justify-center"
+                >
+                    {isProcessing && <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>}
+                    {isProcessing ? 'Processing...' : loadingPrices ? 'Loading prices...' : `Pay $${total}`}
+                </button>
+            </footer>
+        </form>
+    );
+};
+
 interface CheckoutScreenProps {
     levelData: LevelData;
     onBack: () => void;
@@ -51,7 +137,6 @@ interface CheckoutScreenProps {
 }
 
 export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ levelData, onBack, onCheckoutComplete }) => {
-    const [isProcessing, setIsProcessing] = useState(false);
     const [prices, setPrices] = useState<Record<string, number>>({});
     const [loadingPrices, setLoadingPrices] = useState(true);
 
@@ -74,13 +159,6 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ levelData, onBac
 
         fetchPrices();
     }, [levelData.ingredients]);
-
-    const handlePay = () => {
-        setIsProcessing(true);
-        setTimeout(() => {
-            onCheckoutComplete();
-        }, 2000); // Simulate network delay
-    };
 
     const calculateTotal = () => {
         const produceTotal = levelData.ingredients.reduce((sum, ingredient) => {
@@ -135,25 +213,16 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ levelData, onBac
                         </div>
                     </div>
 
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-3">Payment Details</h3>
-                        <div className="bg-gray-100 p-3 rounded-lg border border-gray-300">
-                            {/* This is a mock payment element */}
-                            <p className="text-sm text-center text-gray-500">Mock Stripe Payment Element</p>
-                        </div>
-                    </div>
+                    <Elements stripe={stripePromise}>
+                        <CheckoutForm
+                            levelData={levelData}
+                            onBack={onBack}
+                            onCheckoutComplete={onCheckoutComplete}
+                            loadingPrices={loadingPrices}
+                            total={total}
+                        />
+                    </Elements>
                 </div>
-
-                <footer className="p-6 bg-gray-50 border-t">
-                    <button
-                        onClick={handlePay}
-                        disabled={isProcessing || loadingPrices}
-                        className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-400 flex items-center justify-center"
-                    >
-                        {isProcessing && <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>}
-                        {isProcessing ? 'Processing...' : loadingPrices ? 'Loading prices...' : `Pay $${total}`}
-                    </button>
-                </footer>
             </div>
         </div>
     );
