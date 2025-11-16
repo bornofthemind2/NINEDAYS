@@ -96,20 +96,20 @@ export const INGREDIENT_INFO: { [key: string]: IngredientInfo } = {
     'Ginger': { icon: GingerIcon, benefits: ['Anti-inflammatory properties', 'May help with nausea', 'Supports digestion', 'Contains antioxidants', 'May help with pain relief'], nutrition: { 'Calories': '80 kcal per 100g', 'Potassium': '415mg per 100g', 'Manganese': '0.2mg per 100g', 'Vitamin B6': '0.2mg per 100g', 'Iron': '0.6mg per 100g' } },
 };
 
-// Photorealistic images for ingredients (nano banana style)
+// Local images for ingredients (replace with your actual produce images)
 export const INGREDIENT_IMAGES: { [key: string]: string } = {
-    'Cucumbers': 'https://images.unsplash.com/photo-1604977042946-1eecc30f30d3?w=400&h=400&fit=crop&crop=center',
-    'Green Apples': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=400&fit=crop&crop=center',
-    'Kale': 'https://images.unsplash.com/photo-1524179091875-2a0580a2f7e5?w=400&h=400&fit=crop&crop=center',
-    'Parsley': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop&crop=center',
-    'Cilantro': 'https://images.unsplash.com/photo-1618375569909-3c8616cf09ae?w=400&h=400&fit=crop&crop=center',
-    'Spinach': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop&crop=center',
-    'Lemons': 'https://images.unsplash.com/photo-1582515073490-39981397c445?w=400&h=400&fit=crop&crop=center',
-    'Carrots': 'https://images.unsplash.com/photo-1582515073490-39981397c445?w=400&h=400&fit=crop&crop=center',
-    'Romaine Lettuce': 'https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?w=400&h=400&fit=crop&crop=center',
-    'Celery': 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=400&fit=crop&crop=center',
-    'Beets': 'https://images.unsplash.com/photo-1551892376-c73ba8b2b6e0?w=400&h=400&fit=crop&crop=center',
-    'Ginger': 'https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=400&h=400&fit=crop&crop=center',
+    'Cucumbers': '/images/cucumbers.jpg',
+    'Green Apples': '/images/green-apples.jpg',
+    'Kale': '/images/kale.jpg',
+    'Parsley': '/images/parsley.jpg',
+    'Cilantro': '/images/cilantro.jpg',
+    'Spinach': '/images/spinach.jpg',
+    'Lemons': '/images/lemons.jpg',
+    'Carrots': '/images/carrots.jpg',
+    'Romaine Lettuce': '/images/romaine-lettuce.jpg',
+    'Celery': '/images/celery.jpg',
+    'Beets': '/images/beets.jpg',
+    'Ginger': '/images/ginger.jpg',
 };
 
 // Blend benefits for random selection
