@@ -146,8 +146,6 @@ export const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ levelData, o
                 <div className="mt-4 text-xs text-gray-600 text-center px-4">
                     <p className="mb-2">
                         Purchase all the organic produce listed above from your local grocery store and use a standard juice press to extract the juices. Transfer the juice into twelve airtight 12-ounce jars, sufficient for three days of consumption — four jars per day.
-
-Alternatively, since you're located in the DMV area, you may opt for a local pre-made juice delivery service for added convenience.
                     </p>
                     {canUsePreMade && (
                         <p className="text-green-600 font-medium">
